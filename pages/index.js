@@ -6,7 +6,6 @@ import { searchMovies, getMovieDetails, getNowPlayingMovies, getPopularMovies, g
 import MovieDetail from '../components/MovieDetail';
 
 export default function Home() {
-    const [searchResults, setSearchResults] = useState([]);
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [movies, setMovies] = useState([]);
     const [filter, setFilter] = useState('now_playing');
@@ -16,7 +15,6 @@ export default function Home() {
         const fetchNowPlayingMovies = async () => {
             const data = await getNowPlayingMovies();
             setMovies(data);
-            setSearchResults(data);
         };
 
         fetchNowPlayingMovies();
@@ -32,7 +30,6 @@ export default function Home() {
             } else if (filter === 'top_rated') {
                 data = await getTopRatedMovies();
             }
-            console.log(filter, data);
             setMovies(data);
         };
 
@@ -42,9 +39,10 @@ export default function Home() {
     const handleSearch = async (query) => {
         if (query) {
             const data = await searchMovies(query);
-            setSearchResults(data);
+            setMovies(data);
         } else {
-            setSearchResults(movies);
+            const data = await getNowPlayingMovies();
+            setMovies(data);
         }
     };
 
@@ -60,7 +58,7 @@ export default function Home() {
     return (
         <Box p="4">
             <Heading as="h1" size="lg" mb="4">
-                Search Movies
+                Movies
             </Heading>
             <SearchForm onMovieSelect={fetchMovieDetails} onSubmit={handleSearch} />
             <Select value={filter} onChange={handleFilterChange} mb="4" maxW="200px">
@@ -71,7 +69,7 @@ export default function Home() {
             {selectedMovie ? (
                 <MovieDetail movie={selectedMovie} />
             ) : (
-                <MovieList movies={searchResults} />
+                <MovieList movies={movies} />
             )}
         </Box>
     );
